@@ -1,290 +1,161 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js" integrity="sha512-poSrvjfoBHxVw5Q2awEsya5daC0p00C8SKN74aVJrs7XLeZAi+3+13ahRhHm8zdAFbI2+/SUIrKYLvGBJf9H3A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js"
+		integrity="sha512-poSrvjfoBHxVw5Q2awEsya5daC0p00C8SKN74aVJrs7XLeZAi+3+13ahRhHm8zdAFbI2+/SUIrKYLvGBJf9H3A=="
+		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<script> // https://thingproxy.freeboard.io/fetch/https://www.agfoods.com/flyer_backend.php
-    // $.ajax({
-    //     url: "https://cors-anywhere.herokuapp.com/https://www.agfoods.com/flyer_backend.php",
-    //     type: "POST",
-    //     headers: { "Access-Control-Allow-Origin": "*" },
-    //     data: { action: "get_store", storeid: 24 }, // THIS SHOULD BE A VARIABLE!
-    //     complete: function(response) {
-    //         var parsed = eval("(" + response.responseText + ")");
-    //         var content = "<label><input type=\"button\" name=\"setstore\" value=\"Save as Favorite\" onclick=\"setDefaultStore('";
-    //         content += 24 + "','";
-    //         content += parsed['storename'] + "');\" /></label><p><strong>";
-    //         content += parsed['storename'] + "</strong><br />";
-    //         content += parsed['storeaddr1'];
-    //         if (parsed['storeaddr2']) {
-    //             content += " " + parsed['storeaddr2'];
-    //         }
-    //         content += "<br/>";
-    //         content += parsed['storecity'] + ", ";
-    //         content += parsed['storestate'] + ", ";
-    //         content += parsed['storezip'] + "<br />";
-    //         content += "<a href=\"" + parsed['mapurl'] + "\" target=\"_NEW\">Map &amp; Directions</a></p>";
-    //         $('#flyer-location').html(content);
-    //     }
-    // });
+	<script>
+		currentImage = 0;
+		endedLoading = false;
+		// now we start our ajax post to load up the flyer pages
+		$.ajax({
+			url: "https://thingproxy.freeboard.io/fetch/https://www.agfoods.com/flyer_backend.php",
+			cache: true,
+			type: "POST",
+			headers: { "Access-Control-Allow-Origin": "*" },
+			data: { action: "get_flyer", storeid: 24 },
+			complete: function (response) {
+				var parsed = eval("(" + response.responseText + ")");
+				// globals
+				imageFiles = parsed['files'];
+				nimages = imageFiles.length;
+				imagePrefix = parsed['path'];
+				var c = 0;
+				// we start by showing the first page
+				if (nimages > 0) {
+					// var img = loadImage(imageFiles[0]);
+					// // so now we should be able to display
+					// $('#loader').fadeOut(200, function () {
+					// 	$(img).animate({ marginLeft: '25vh' });
+					// 	$('#flyer-info').html("Page 1 of " + nimages);
+					// });
+				}
 
+				endedLoading = true;
 
-    currentImage = 0;
-    endedLoading = false;
-    // now we start our ajax post to load up the flyer pages
-    $.ajax({
-        url: "https://thingproxy.freeboard.io/fetch/https://www.agfoods.com/flyer_backend.php",
-        cache: true,
-        type: "POST",
-        type: "POST",
-        headers: { "Access-Control-Allow-Origin": "*" },
-        data: { action: "get_flyer", storeid: 24 },
-        complete: function(response) {
-            var parsed = eval("(" + response.responseText + ")");
-            // globals
-            imageFiles = parsed['files'];
-            nimages = imageFiles.length;
-            imagePrefix = parsed['path'];
-            var c = 0;
-            // we start by showing the first page
-            if (nimages > 0) {
-                var img = loadImage(imageFiles[0]);
-                // so now we should be able to display
-                $('#loader').fadeOut(200, function() {
-                    $(img).animate({marginLeft: '25vh'});
-                    $('#flyer-info').html("Page 1 of " + nimages);
-                });
-                setNavBar();
-            } 
+				console.log("loaded")
+			}
+		});
 
-            endedLoading = true;
+		// function loadImage(path, isreverse, issecond, istwopage) {
+		// 	var fullPath = "https://www.agfoods.com/" + imagePrefix + "/big/" + path;
+		// 	var img = new Image();
+		// 	img.src = fullPath;
+		// 	//img.width = "50%";
+		// 	//img.border = 0;
+		// 	//img.style.position = 'relative';
+		// 	if (isreverse) {
+		// 		img.style.display = 'none';
+		// 	}
+		// 	if (issecond && istwopage) {
+		// 		img.style.marginLeft = '0px';
+		// 	} else if (istwopage) {
+		// 		if (isreverse) {
+		// 			img.style.marginLeft = '0px';
+		// 		} else {
+		// 			img.style.marginLeft = '200vh';
+		// 		}
+		// 	} else { // single page
+		// 		if (isreverse) {
+		// 			img.style.marginLeft = '25%';
+		// 		} else {
+		// 			img.style.marginLeft = '100vh';
+		// 		}
+		// 	}
+		// 	$('#flyer-stage').append(img);
+		// 	return img;
+		// }
 
-            console.log("loaded")
-        }
-    });
+		var currentImage = 0;
+		function nextPage() {
 
-    function loadImage(path,isreverse, issecond,istwopage) {
-        var fullPath = "https://www.agfoods.com/" + imagePrefix + "/big/" + path;
-        var img = new Image();
-        img.src = fullPath;
-        //img.width = "50%";
-        //img.border = 0;
-        //img.style.position = 'relative';
-        if (isreverse) {
-            img.style.display = 'none';
-        }
-        if (issecond && istwopage) {
-            img.style.marginLeft = '0px';
-        } else if (istwopage) {
-            if (isreverse) {
-                img.style.marginLeft = '0px';
-            } else {
-                img.style.marginLeft = '200vh';
-            }
-        } else { // single page
-            if (isreverse) {
-                img.style.marginLeft = '25%';
-            } else {
-                img.style.marginLeft = '100vh';
-            }
-        }
-        $('#flyer-stage').append(img);
-        return img;
-    }
+			var loadingtwo = true;
+			var path1;
+			var path2;
 
-    function setNavBar() {
-        $('#flyerview-nav li').removeClass('active');
-        var mylistitems = $('#flyerview-nav li');
-        var currentimages = $('#flyer-stage img');
+			if (currentImage == 0) {
+				loadingtwo = false;
+			}
+			if (currentImage == nimages - 1) {
+				loadingtwo = false;
+			}
 
-        if (currentImage == 0) {
-            $(mylistitems[0]).addClass('active');
-            return;
-        }
-
-        var c = 0;
-        if (currentimages.length == 1) {
-            $(mylistitems[currentImage]).addClass('active');
-            return;
-        }
-        for (c = currentImage-1; c <= currentImage; c++) {
-            $(mylistitems[c]).addClass('active');
-        }
-    }
-
-    function nextPage() {
-        startLoading();
-
-        if(currentImage == imageFiles.length-1){
-            console.log("end of pages, going to 1")
-            gotoPage(1)
-            console.log("page: "+currentImage + ", going to page 0")
-            return
-        }
-
-        var numCurrentDisplay = $('#flyer-stage img').length;
-        var toRemove = $('#flyer-stage img');
-        // we know we have at least one more image to load because this function was called
-        currentImage++;
-        var loadingtwo = false;
-        if (currentImage < nimages-1) {
-            loadingtwo = true;
-        }
-        var p2 = loadImage(imageFiles[currentImage], false, false, loadingtwo);
-        var fromPage = currentImage + 1;
-        var toPage = 0;
-        // we need to track if we are loading more than one image...
-
-        if (loadingtwo) {
-            currentImage++;
-            var p3 = loadImage(imageFiles[currentImage],false, true, loadingtwo);
-            toPage = currentImage + 1;
-        }
-        var images = $('#flyer-stage img');
-        // shift the first page off the stage.
-        var c = 0;
-        $(toRemove[0]).animate({marginLeft: (numCurrentDisplay * 100 * -1) + 'vh'}, function() {
-            removeImages(numCurrentDisplay);
-        });
-        
-        var leftmar = '50vh';
-        // if we are loading a second page then..
-        if (loadingtwo) {
-            $(p3).animate({marginLeft: '0px'});
-            leftmar = '0px'; 
-        }
-        // and finally, load the next page.
-        $(p2).animate({marginLeft: leftmar}, function() {
-            endLoading(fromPage, toPage, loadingtwo);
-        });
-
-        console.log("page: "+currentImage+" out of "+imageFiles.length);
-    }
-
-    function startLoading() {
-        $('#flyer-stage').width("200vh");
-    }
-
-    function endLoading(from, to,twopage) {
-        $('#loader').fadeOut(200, function() {
-            if (currentImage < nimages-1) {
-                $('#rightnav').fadeIn();
-            }
-            if (currentImage != 0) {
-                $('#backnav').fadeIn();
-            }
-            var pageinfo = "Page " + from;
-            if (twopage) {
-                pageinfo += " - " + to;
-            }
-            pageinfo += " of " + nimages;
-            $('#flyer-info').html(pageinfo);
-            $('#flyer-stage').width('100%');
-            setNavBar();
-        });
-    }
-
-    function removeImages(numtoremove) {
-        var im = $('#flyer-stage img');
-        for (c = 0; c < numtoremove; c++) {
-            $(im[c]).remove();
-        }
-    }
-
-    function gotoPage(pnum) {
-        var loadingtwo = true;
-        if (currentImage == 0) {
-            if (pnum == 0) {
-                return;
-            }
-        } else {
-            if (pnum == currentImage ||
-                pnum +1 == currentImage) {
-                return;
-            }
-        }
-        if (pnum != 0 && (pnum % 2) == 0) {
-            pnum -= 1;
-        }
-        if (pnum == 0) {
-            loadingtwo = false;
-        }
-        if (pnum == nimages-1) {
-            loadingtwo = false;
-        }
-        startLoading();
-        var images = $('#flyer-stage img');
-        var ncurrent = images.length;
-        $('#flyer-stage img').fadeOut(500, function() {
-            removeImages(ncurrent);
-            currentImage = pnum;
-            var frompage = pnum + 1;
-            var topage = frompage + 1;
-            var im1 = loadImage(imageFiles[currentImage], true, false, loadingtwo);
-            //$(im1).fadeIn(500, function() {
-            //    endLoading(frompage, topage, loadingtwo);
-            //});
-            var fromPage = currentImage + 1;
-            var toPage = 0;
-
-            $(im1).animate({marginLeft: '50vh'}, function() {
-                    endLoading(fromPage, toPage, loadingtwo);
-            });
-            if (loadingtwo) {
-                currentImage++;
-                var p2 = loadImage(imageFiles[currentImage], true, true, loadingtwo);
-                $(p2).animate({marginLeft: '50vh'}, function() {
-                    //endLoading(fromPage, toPage, loadingtwo);
-                });
-                //$(p2).fadeIn(500);
-            }
-        });
+			console.log(loadingtwo)
 
 
-    }
+			if (currentImage == imageFiles.length - 1) {
+				currentImage = 0;
+			} else if (loadingtwo == false) {
+				currentImage++;
+				path1 = imageFiles[currentImage-1];
 
-    //if(endedLoading){
-        // Start to change the images every 3 seconds
-        setInterval(nextPage, 3000);
-    //}
-    
-    
-</script>
+				$("#image1").fadeOut(200, function () {
+					$("#image1").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path1);
+				}).fadeIn(200);
+				$("#image2").fadeOut(200, function () {
+					$("#image2").attr("src", "https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png");
+				}).fadeIn(200);
+			} else {
+				currentImage++;
+				path1 = imageFiles[currentImage-1];
+				currentImage++;
+				path2 = imageFiles[currentImage-1];
 
-<style>
-    #flyer-stage {
-        display: flex;
-        width: 100vh;
-        height: 100vh;
-    }
-    #flyer-stage img {
-        flex: 50%;
-    }
-</style>
+				$("#image1").fadeOut(200, function () {
+					$("#image1").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path1);
+				}).fadeIn(200);
+				$("#image2").fadeOut(200, function () {
+					$("#image2").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path2);
+				}).fadeIn(200);
+			}
+
+
+
+		}
+
+
+		//if(endedLoading){
+		// Start to change the images every 3 seconds
+		setInterval(nextPage, 3000);
+        //}
+
+
+	</script>
+
+	<style>
+		#images {
+			display: inline-block;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			bottom: 0px;
+			left: 0px;
+		}
+
+		#images img {
+			float: left;
+			width: 50%;
+			height: 100%;
+		}
+
+		html,
+		body {
+			margin: 0px;
+		}
+	</style>
 
 </head>
+
 <body>
-
-    <div id="blackout">
-        <div id="flyer-gallery">
-            <div id="slide-controls">
-                <div id="loader">
-                    <img src="https://www.agfoods.com/images/loader.gif"/>
-                </div><!-- end loader -->
-            </div><!-- end slide-controls -->
-            <div id="flyer-stage">
-            </div><!-- end flyer-stage -->
-            <div id="flyer-info">
-            </div><!-- end flyer-info -->
-            <div id="flyerview-nav">
-            </div><!-- end flyer-nav -->
-        </div><!-- end flyer-gallery -->
-        <div id="zoom-viewer">
-        </div><!-- end zoom-viewer -->
-
-    </div><!-- end blackout-->
-</div><!-- end flyers -->
-
+	<div id="images">
+		<img id="image1"
+			src="https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png">
+		<img id="image2"
+			src="https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png">
+	</div>
 </body>
-</html> 
+
+</html>
