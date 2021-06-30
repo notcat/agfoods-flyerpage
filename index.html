@@ -116,7 +116,7 @@
     function nextPage() {
         startLoading();
 
-        if(currentImage == imageFiles.length){
+        if(currentImage == imageFiles.length-1){
             console.log("end of pages, going to 1")
             gotoPage(1)
             console.log("page: "+currentImage + ", going to page 0")
@@ -159,7 +159,7 @@
             endLoading(fromPage, toPage, loadingtwo);
         });
 
-        console.log("page: "+currentImage)
+        console.log("page: "+currentImage+" out of "+imageFiles.length);
     }
 
     function startLoading() {
