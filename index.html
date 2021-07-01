@@ -12,10 +12,9 @@
 		endedLoading = false;
 		// now we start our ajax post to load up the flyer pages
 		$.ajax({
-			url: "https://thingproxy.freeboard.io/fetch/https://www.agfoods.com/flyer_backend.php",
+			url: "https://cors.bridged.cc/https://www.agfoods.com/flyer_backend.php",
 			cache: true,
 			type: "POST",
-			headers: { "Access-Control-Allow-Origin": "*" },
 			data: { action: "get_flyer", storeid: 24 },
 			complete: function (response) {
 				var parsed = eval("(" + response.responseText + ")");
@@ -79,16 +78,22 @@
 			if (currentImage == 0) {
 				loadingtwo = false;
 			}
-			if (currentImage == nimages - 1) {
+			if (currentImage == -1) {
+				loadingtwo = false;
+			}
+			if (currentImage == imageFiles.length - 1) {
 				loadingtwo = false;
 			}
 
 			console.log(loadingtwo)
 
 
-			if (currentImage == imageFiles.length - 1) {
+			if (currentImage == imageFiles.length) {
 				currentImage = 0;
-			} else if (loadingtwo == false) {
+				loadingtwo = false;
+			}
+			
+			if (loadingtwo == false) {
 				currentImage++;
 				path1 = imageFiles[currentImage-1];
 
@@ -119,7 +124,7 @@
 
 		//if(endedLoading){
 		// Start to change the images every 3 seconds
-		setInterval(nextPage, 3000);
+		setInterval(nextPage, 7500);
         //}
 
 
@@ -144,6 +149,7 @@
 		html,
 		body {
 			margin: 0px;
+			background-color: white;
 		}
 	</style>
 
