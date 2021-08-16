@@ -8,6 +8,11 @@
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 	<script>
+		//////////////////////////////////////////////////////////////////
+		////////////// IMPORTANT /////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////
+		
+		/// Due to a limitation of the billboard program, all styling, scripts, ect must be in the the HTML file if it is not grabbed from a CDN like jquery is.
 
 		var nextPageInterval;
 
@@ -28,16 +33,7 @@
 					nimages = imageFiles.length;
 					imagePrefix = parsed['path'];
 					var c = 0;
-					// we start by showing the first page
-					if (nimages > 0) {
-						// var img = loadImage(imageFiles[0]);
-						// // so now we should be able to display
-						// $('#loader').fadeOut(200, function () {
-						// 	$(img).animate({ marginLeft: '25vh' });
-						// 	$('#flyer-info').html("Page 1 of " + nimages);
-						// });
-					}
-
+					
 					endedLoading = true;
 
 					console.log("loaded")
@@ -48,36 +44,6 @@
 				}
 			});
 		}
-
-
-		// function loadImage(path, isreverse, issecond, istwopage) {
-		// 	var fullPath = "https://www.agfoods.com/" + imagePrefix + "/big/" + path;
-		// 	var img = new Image();
-		// 	img.src = fullPath;
-		// 	//img.width = "50%";
-		// 	//img.border = 0;
-		// 	//img.style.position = 'relative';
-		// 	if (isreverse) {
-		// 		img.style.display = 'none';
-		// 	}
-		// 	if (issecond && istwopage) {
-		// 		img.style.marginLeft = '0px';
-		// 	} else if (istwopage) {
-		// 		if (isreverse) {
-		// 			img.style.marginLeft = '0px';
-		// 		} else {
-		// 			img.style.marginLeft = '200vh';
-		// 		}
-		// 	} else { // single page
-		// 		if (isreverse) {
-		// 			img.style.marginLeft = '25%';
-		// 		} else {
-		// 			img.style.marginLeft = '100vh';
-		// 		}
-		// 	}
-		// 	$('#flyer-stage').append(img);
-		// 	return img;
-		// }
 
 		var currentImage = 0;
 		function nextPage() {
@@ -144,12 +110,15 @@
 			}
 		};
 
+		// Online
 		window.addEventListener('online', () => {
 			console.log('Became online');
 			$(".noWifi").css("opacity", "0");
 			clearInterval(nextPageInterval);
 			queryAGFoodsFlyer();
 		});
+		
+		// Offline
 		window.addEventListener('offline', () => {
 			console.log('Became offline');
 			$(".noWifi").css("opacity", "100");
