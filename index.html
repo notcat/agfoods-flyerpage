@@ -8,36 +8,47 @@
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 	<script>
-		currentImage = 0;
-		endedLoading = false;
-		// now we start our ajax post to load up the flyer pages
-		$.ajax({
-			url: "https://cors.bridged.cc/https://www.agfoods.com/flyer_backend.php",
-			cache: true,
-			type: "POST",
-			data: { action: "get_flyer", storeid: 24 },
-			complete: function (response) {
-				var parsed = eval("(" + response.responseText + ")");
-				// globals
-				imageFiles = parsed['files'];
-				nimages = imageFiles.length;
-				imagePrefix = parsed['path'];
-				var c = 0;
-				// we start by showing the first page
-				if (nimages > 0) {
-					// var img = loadImage(imageFiles[0]);
-					// // so now we should be able to display
-					// $('#loader').fadeOut(200, function () {
-					// 	$(img).animate({ marginLeft: '25vh' });
-					// 	$('#flyer-info').html("Page 1 of " + nimages);
-					// });
+
+		var nextPageInterval;
+
+		// We query the flyer images later, when we can detect if we are connected to the internet or not.
+		function queryAGFoodsFlyer() {
+			currentImage = 0;
+			endedLoading = false;
+			// now we start our ajax post to load up the flyer pages
+			$.ajax({
+				url: "https://cors.bridged.cc/https://www.agfoods.com/flyer_backend.php",
+				cache: true,
+				type: "POST",
+				data: { action: "get_flyer", storeid: 24 },
+				complete: function (response) {
+					var parsed = eval("(" + response.responseText + ")");
+					// globals
+					imageFiles = parsed['files'];
+					nimages = imageFiles.length;
+					imagePrefix = parsed['path'];
+					var c = 0;
+					// we start by showing the first page
+					if (nimages > 0) {
+						// var img = loadImage(imageFiles[0]);
+						// // so now we should be able to display
+						// $('#loader').fadeOut(200, function () {
+						// 	$(img).animate({ marginLeft: '25vh' });
+						// 	$('#flyer-info').html("Page 1 of " + nimages);
+						// });
+					}
+
+					endedLoading = true;
+
+					console.log("loaded")
+					nextPage(); // make sure to "nextPage" to load the first pages
+
+					// Change the page every ___ miliseconds
+					nextPageInterval = setInterval(nextPage, 8000);
 				}
+			});
+		}
 
-				endedLoading = true;
-
-				console.log("loaded")
-			}
-		});
 
 		// function loadImage(path, isreverse, issecond, istwopage) {
 		// 	var fullPath = "https://www.agfoods.com/" + imagePrefix + "/big/" + path;
@@ -92,43 +103,61 @@
 				currentImage = 0;
 				loadingtwo = false;
 			}
-			
+
 			if (loadingtwo == false) {
 				currentImage++;
-				path1 = imageFiles[currentImage-1];
+				path1 = imageFiles[currentImage - 1];
 
-				$("#image1").fadeOut(200, function () {
+				$("#image1").fadeOut(500, function () {
 					$("#image1").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path1);
-				}).fadeIn(200);
-				$("#image2").fadeOut(200, function () {
-					$("#image2").attr("src", "https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png");
-				}).fadeIn(200);
+				}).fadeIn(500);
+				$("#image2").fadeOut(500, function () {
+					$("#image2").attr("src", "smartbuys.jpg");
+				}).fadeIn(500);
 			} else {
 				currentImage++;
-				path1 = imageFiles[currentImage-1];
+				path1 = imageFiles[currentImage - 1];
 				currentImage++;
-				path2 = imageFiles[currentImage-1];
+				path2 = imageFiles[currentImage - 1];
 
-				$("#image1").fadeOut(200, function () {
+				$("#image1").fadeOut(500, function () {
 					$("#image1").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path1);
-				}).fadeIn(200);
-				$("#image2").fadeOut(200, function () {
+				}).fadeIn(500);
+				$("#image2").fadeOut(500, function () {
 					$("#image2").attr("src", "https://www.agfoods.com/" + imagePrefix + "/big/" + path2);
-				}).fadeIn(200);
+				}).fadeIn(500);
 			}
-
-
-
 		}
 
+		// Check for wifi, if down, show a banner.
 
-		//if(endedLoading){
-		// Start to change the images every 3 seconds
-		setInterval(nextPage, 7500);
-        //}
+		// Initially check if wifi is down, because those events only fire if it CHANGES, not initial setting.
+		window.onload = function () {
+			if (window.navigator.onLine) {
+				console.log('Initially online');
+				$(".noWifi").css("opacity", "0");
+				clearInterval(nextPageInterval);
+				queryAGFoodsFlyer();
+			} else {
+				console.log('Initially offline');
+				$(".noWifi").css("opacity", "100");
+			}
+		};
 
-
+		window.addEventListener('online', () => {
+			console.log('Became online');
+			$(".noWifi").css("opacity", "0");
+			clearInterval(nextPageInterval);
+			queryAGFoodsFlyer();
+		});
+		window.addEventListener('offline', () => {
+			console.log('Became offline');
+			$(".noWifi").css("opacity", "100");
+		});
 	</script>
+
+
+
 
 	<style>
 		#images {
@@ -151,16 +180,47 @@
 			margin: 0px;
 			background-color: white;
 		}
+
+		.noWifi {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+
+			width: 100%;
+			height: 5%;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			position: fixed;
+
+			background-color: rgb(255, 197, 71);
+			color: black;
+			font-size: 30px;
+		}
+
+		.wifiStatus {
+			font-family: Roboto-Regular;
+		}
+
+		@font-face {
+			font-family: Roboto-Regular;
+			src: url("Roboto-Regular.ttf");
+		}
 	</style>
 
 </head>
 
 <body>
+	<div class="noWifi">
+		<div class="wifiStatus">
+			<p>⚠ No Internet ⚠</p>
+		</div>
+	</div>
+
 	<div id="images">
-		<img id="image1"
-			src="https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png">
-		<img id="image2"
-			src="https://cdn.discordapp.com/attachments/859912809445326848/859934936235769856/placegholder.png">
+		<img id="image1" src="waitingforwifi.jpg">
+		<img id="image2" src="waitingforwifi.jpg">
 	</div>
 </body>
 
